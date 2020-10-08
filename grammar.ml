@@ -60,12 +60,26 @@ val inst1 = Instruction_2(v3, Expression_1(IntegerExpression_1(0)));
 val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(13)));
 
 (* While condition *)
-val cond1 = Expression_2(BooleanExpression_3(IntegerExpression_2(v1), Ne, IntegerExpression_1(0)));
+val whileCond = BooleanExpression_3(IntegerExpression_2(v1), Ne, IntegerExpression_1(0));
 
 (* While innards *)
-val arith1 = IntegerExpression_3(
+val whileArith1 = IntegerExpression_3(
         IntegerExpression_3(IntegerExpression_2(v1), Minus, IntegerExpression_1(10)),
         Times,
         IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpression_1(10))); 
 
+val whileInst1 = Instruction_2(v2, Expression_1(whileArith1)); 
 
+
+val whileArith2 = IntegerExpression_3(
+        IntegerExpression_3(IntegerExpression_2(v3), Times, IntegerExpression_1(10)),
+        Plus,
+        IntegerExpression_2(v2));
+
+val whileInst2 = Instruction_2(v3, Expression_1(whileArith2)); 
+
+val whileArith3 = IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpression_1(10));
+
+val whileInst3 = Instruction_2(v1, Expression_1(whileArith3));
+
+val whileBlock = Instruction_5(whileCond, Instruction_3([whileInst1, whileInst2, whileInst3]));
