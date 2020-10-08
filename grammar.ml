@@ -30,19 +30,42 @@ datatype Instruction =
 
 datatype Type = BooleanType | IntegerType;
 
-datatype Declaration = Declaration_1 of (Variable * Type);
+type Declaration = Variable * Type;
 
-datatype DeclarationList = DeclarationList_1 of Declaration list;
+type DeclarationList = Declaration list;
 
-datatype Program = Program_1 of (DeclarationList * Instruction);
+type Program = (DeclarationList * Instruction);
+
+(****************************************************************************************)
 
 
-Program_1(
-    DeclarationList_1([
-        Declaration_1(
-            "Muh_Variable",
-            IntegerType
-        )
-    ]),
-    Instruction_1(Skip)
-);
+(* Variable names *)
+val v1 = "n";
+val v2 = "reverse";
+val v3 = "sum";
+val v4 = "flag";
+val v5 = "j";
+val v6 = "tprime";
+
+(* Declarations *)
+val declares = [(v1, IntegerType),
+        (v2, IntegerType),
+        (v3, IntegerType),
+        (v4, IntegerType),
+        (v5, IntegerType),
+        (v6, BooleanType)];
+
+(* Instantiation *)
+val inst1 = Instruction_2(v3, Expression_1(IntegerExpression_1(0)));
+val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(13)));
+
+(* While condition *)
+val cond1 = Expression_2(BooleanExpression_3(IntegerExpression_2(v1), Ne, IntegerExpression_1(0)));
+
+(* While innards *)
+val arith1 = IntegerExpression_3(
+        IntegerExpression_3(IntegerExpression_2(v1), Minus, IntegerExpression_1(10)),
+        Times,
+        IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpression_1(10))); 
+
+
