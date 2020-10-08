@@ -22,11 +22,11 @@ datatype Expression = Expression_1 of IntegerExpression | Expression_2 of Boolea
 
 datatype Skip_Const = Skip;
 datatype Instruction = 
-    Instruction_0 of Skip_Const 
-|   Instruction_1 of (Variable * Expression)
-|   Instruction_2 of Instruction list
-|   Instruction_3 of (BooleanExpression * Instruction * Instruction)
-|   Instruction_4 of (BooleanExpression * Instruction);
+    Instruction_1 of Skip_Const 
+|   Instruction_2 of (Variable * Expression)
+|   Instruction_3 of Instruction list
+|   Instruction_4 of (BooleanExpression * Instruction * Instruction)
+|   Instruction_5 of (BooleanExpression * Instruction);
 
 datatype Type = BooleanType | IntegerType;
 
@@ -44,5 +44,5 @@ Program_1(
             IntegerType
         )
     ]),
-    Instruction_0(Skip)
+    Instruction_1(Skip)
 );
