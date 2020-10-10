@@ -58,6 +58,7 @@ val declares = [(v1, IntegerType),
 (* Instantiation *)
 val inst1 = Instruction_2(v3, Expression_1(IntegerExpression_1(0)));
 val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(13)));
+val insts1 = Instruction_3([inst1, inst2]);
 
 (* While condition *)
 val whileCond = BooleanExpression_3(IntegerExpression_2(v1), Ne, IntegerExpression_1(0));
@@ -82,4 +83,62 @@ val whileArith3 = IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpre
 
 val whileInst3 = Instruction_2(v1, Expression_1(whileArith3));
 
+(* While Block *)
 val whileBlock = Instruction_5(whileCond, Instruction_3([whileInst1, whileInst2, whileInst3]));
+
+(* More Instantiations *)
+val inst3 = Instruction_2(v4, Expression_1(IntegerExpression_1(0)));
+val inst4 = Instruction_2(v5, Expression_1(IntegerExpression_1(2)));
+val insts2 = Instruction_3([inst3, inst4]);
+
+
+
+
+(* We need the stuff outisde Repeat Loop before writing repeat loop in order to implement "break" *)
+
+(*If Condition *)
+val ifCond2 = BooleanExpression_3(IntegerExpression_2(v4), Eq, IntegerExpression_1(0));
+val thenStatement2 = Instruction_2(v6, Expression_2(BooleanExpression_1(true)));
+val elseStatement2 = Instruction_2(v6, Expression_2(BooleanExpression_1(false)));
+
+(* If Block2 *)
+val ifBlock2 = Instruction_4(ifCond2, thenStatement2, elseStatement2); 
+
+
+(* Repeat Innards *)
+
+(* If Condition *)
+val ifArith1 = IntegerExpression_3(IntegerExpression_3(IntegerExpression_2(v3), Minus, IntegerExpression_2(v5)), Times, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_2(v5)));
+val ifCond1 = BooleanExpression_3(ifArith1, Eq, IntegerExpression_1(0));
+
+(* If Innards *)
+val thenStatement1 = Instruction_2(v4, Expression_1(IntegerExpression_1(1)));
+
+(* If Block *)
+val ifBlock1 = Instruction_4(ifCond1, thenStatement1, ifBlock2);
+
+
+val repeatArith1 = IntegerExpression_3(IntegerExpression_2(v5), Plus, IntegerExpression_1(1));
+val repeatInst1 = Instruction_2(v5, Expression_1(repeatArith1));
+
+(* Repeat Body *)
+val repeatBody = Instruction_3([ifBlock1, repeatInst1]); 
+
+(* Repeat Cond *)
+val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Le, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_1(2)));
+
+(* Repeat Block *)
+val repeatBlock1 = Instruction_3([repeatBody, Instruction_5(repeatCond, repeatBody)]);
+
+
+
+(* Putting it all together *)
+val ourProgram = Program(declares, Instruction_3([
+		insts1,
+		whileBlock,
+		insts2,
+		repeatBlock1,
+		ifBlock2
+		]));
+				
+
