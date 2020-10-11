@@ -133,12 +133,15 @@ val repeatBlock1 = Instruction_3([repeatBody, Instruction_5(repeatCond, repeatBo
 
 
 (* Putting it all together *)
-val ourProgram = Program(declares, Instruction_3([
-		insts1,
-		whileBlock,
-		insts2,
-		repeatBlock1,
-		ifBlock2
-		]));
+val ourProgram = (
+			declares, 
+			Instruction_3([
+				insts1,
+				whileBlock,
+				insts2,
+				repeatBlock1,
+				ifBlock2
+			])
+		);
 				
 
