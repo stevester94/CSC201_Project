@@ -1,3 +1,10 @@
+(* CSC 201 Section 3, Team 4 *)
+(* Alex Nosenko *)
+(* Jeffrey Byrnes *)
+(* Nitin Nath *)
+(* Steven Mackey *)
+
+(*Part 1 - Defenitions *)
 type Variable = string;
 type Integer_Constant = int;
 type Boolean_Constant = bool;
@@ -36,8 +43,41 @@ type DeclarationList = Declaration list;
 
 type Program = (DeclarationList * Instruction);
 
-(****************************************************************************************)
+(*Part - 3*)
 
+(* Sample Program
+PROGRAM twisted_prime
+{
+n Integer;
+reverse Integer;
+sum Integer;
+flag Integer;
+j Integer;
+tprime Boolean;
+sum = 0;
+n = 13;
+WHILE (n Ne 0)
+{
+reverse = (n Minus 10 Times (n Div 10));
+sum = sum Times 10 Plus reverse;
+n = n Div 10;
+}
+flag = 0;
+j = 2;
+REPEAT
+IF ((sum Minus j Times (sum Div j)) Eq 0)
+{
+flag = 1;
+break;
+}
+j = j Plus 1;
+UNTIL (j Le (sum Div 2))
+IF (flag Eq 0) THEN ans=True;
+ELSE ans=False;
+}
+*)
+
+(*Implementation of Sample Program*)
 
 (* Variable names *)
 val v1 = "n";
@@ -94,7 +134,7 @@ val insts2 = Instruction_3([inst3, inst4]);
 
 
 
-(* We need the stuff outisde Repeat Loop before writing repeat loop in order to implement "break" *)
+(* We need the code outisde Repeat Loop before writing repeat loop in order to implement "break" *)
 
 (*If Condition *)
 val ifCond2 = BooleanExpression_3(IntegerExpression_2(v4), Eq, IntegerExpression_1(0));
@@ -130,8 +170,6 @@ val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Le, IntegerExpress
 (* Repeat Block *)
 val repeatBlock1 = Instruction_3([repeatBody, Instruction_5(repeatCond, repeatBody)]);
 
-
-
 (* Putting it all together *)
 val ourProgram = (
 			declares, 
@@ -143,5 +181,66 @@ val ourProgram = (
 				ifBlock2
 			])
 		);
-				
 
+(*Step 2*)
+
+(*step 2.1 *)
+datatype IType = IntRep | BoolRep | NoDecRep;
+
+(*step 2.2 *)
+type TypeMapImp = (Variable*IType)list;
+
+(*step 2.3 *)
+(*varITypeSearch: TypeMap->Variable->IType;*)
+val rec varITypeSearch = fn([]:TypeMapImp)=>(fn(u:Variable)=>NoDecRep) | (((v,w)::map_tail):TypeMapImp)=>
+			(fn(u:Variable)=>if(u=v) then w
+					else
+		 			varITypeSearch(map_tail)(u));
+
+(*step 2.4 *)
+(*TypeMapPlusOne:TypeMap->Declaration->TypeMap *)
+val TypeMapPlusOne = (fn(TMOld:TypeMapImp)=>(fn(v:Variable,IntegerType)=>[(v,IntRep)]@TMOld | (v:Variable,BooleanType)=>[(v,BoolRep)]@TMOld));
+
+(*step 2.5 *)
+fun DecListToTypeMapImp([])=[] |
+	DecListToTypeMapImp((declist_head::declist_tail):DeclarationList)=TypeMapPlusOne(DecListToTypeMapImp(declist_tail))(declist_head);
+
+(*Testing *)
+val testVariables = DecListToTypeMapImp(declares);
+val result = varITypeSearch(testVariables);
+
+val var1 = varITypeSearch([]);
+
+
+(*step 2.6 *)
+val rec VarNotInDecList = fn([]:DeclarationList)=>(fn(v:Variable)=>true) |
+			((x:Variable,y:Type)::declist_tail)=>(fn(v:Variable)=>VarNotInDecList(declist_tail)(v) andalso (v<>x));
+
+(*step 2.7 *)
+val rec ValidDecList= fn([])=> true |
+	((x:Variable,y:Type)::declist_tail)=>VarNotInDecList(declist_tail)(x) andalso ValidDecList(declist_tail);
+
+
+(*step 2.8*)
+val rec VIntExp = 
+	fn(IntegerExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
+	(IntegerExpression_2(v)) => (fn(tmi:TypeMapImp) => varITypeSearch(tmi)(v) = IntRep) |
+	(IntegerExpression_3(ie1, aop, ie2)) => (fn(tmi:TypeMapImp) => VIntExp(ie1)(tmi) 
+								andalso VIntExp(ie2)(tmi));
+	 
+(*Testing 2.8 *)
+VIntExp(IntegerExpression_1(0));		(* good test IntegerExpression_1 *)
+VIntExp(IntegerExpression_2(v1)); 		(* good test IntegerExpression_2 *)
+VIntExp(whileArith2);				(* good test IntegerExpression_3 *)
+
+(*step 2.9*)
+val rec VBoolExp =
+        fn(BooleanExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
+        (BooleanExpression_2(v)) => (fn(tmi:TypeMapImp) => varITypeSearch(tmi)(v) = BoolRep) |
+        (BooleanExpression_3(ie1, rop, ie2)) => (fn(tmi:TypeMapImp) => VIntExp(ie1)(tmi)
+                                                                andalso VIntExp(ie2)(tmi)) |
+        (BooleanExpression_4(be1, bop, be2)) => (fn(tmi:TypeMapImp) => VBoolExp(be1)(tmi)
+                                                                andalso VBoolExp(be2)(tmi));
+
+(*Testing 2.9*)
+VBoolExp(ifCond2)				(* good test BooleanExpression_3 *)
