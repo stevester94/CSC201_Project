@@ -222,6 +222,8 @@ val rec ValidDecList= fn([])=> true |
 
 
 (*step 2.8*)
+print("\nBeginning step 2.8\n");
+
 val rec VIntExp = 
 	fn(IntegerExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
 	(IntegerExpression_2(v)) => (fn(tmi:TypeMapImp) => varITypeSearch(tmi)(v) = IntRep) |
@@ -229,6 +231,8 @@ val rec VIntExp =
 								andalso VIntExp(ie2)(tmi));
 	 
 (*Testing 2.8 *)
+print("\nTesting 2.8\n");
+
 VIntExp(IntegerExpression_1(0));				(* good test IntegerExpression_1 *)
 VIntExp(IntegerExpression_2(v1)); 				(* good test IntegerExpression_2 *)
 VIntExp(whileArith2);						(* good test IntegerExpression_3 *)
@@ -238,6 +242,7 @@ VIntExp(IntegerExpression_2(v6));				(* bad test IntegerExpression_2 *)
 
 
 (*step 2.9*)
+print("\nBeginning step 2.9\n");
 val rec VBoolExp =
         fn(BooleanExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
         (BooleanExpression_2(v)) => (fn(tmi:TypeMapImp) => varITypeSearch(tmi)(v) = BoolRep) |
@@ -247,6 +252,8 @@ val rec VBoolExp =
                                                                 andalso VBoolExp(be2)(tmi));
 
 (*Testing 2.9*)
+print("\nTesting 2.9\n");
+
 VBoolExp(BooleanExpression_1(true));				(* good test BooleanExpression_1 *)
 VBoolExp(BooleanExpression_2(v6));				(* good test BooleanExpression_2 *)
 VBoolExp(ifCond2);						(* good test BooleanExpression_3 *)
