@@ -266,36 +266,74 @@ VBoolExp(BooleanExpression_2(v1));				(* bad test IntegerExpression_2 *)
 
 
 (* 2.10 *)
-(* datatype Skip_Const = Skip;
-datatype Instruction = 
-    Instruction_1 of Skip_Const 
-|   Instruction_2 of (Variable * Expression)
-|   Instruction_3 of Instruction list
-|   Instruction_4 of (BooleanExpression * Instruction * Instruction)
-|   Instruction_5 of (BooleanExpression * Instruction); *)
-
-(* So, instruction represents
+(* 
     Instruction_1: skip
     Instruction_2: assignment
     Instruction_3: list of these
-    Instruction_4: while loop
-    Instruction_5: if
+    Instruction_4: if statement
+    Instruction_5: while loop
+*)
 
-    list of the above*)
 
+print("Beginning Step 2.10\n");
 fun
     (* Validate Skip *)
-    VInstruction(skip)=(fn(tmi:TypeMapImp) => true) |
-    VInstruction((v, dc1_for_e(e))) =
-        VIntExp(e)(tmi) andalso (VarITypeSearch(tmi)(v)=IntRep) |
-    VInstruction(dc2_for_inst(v, dc2_for_e(e))) = ..... |
-    VInstruction(dc3_for_inst([])) = (fn (tmi:TypeMapImp) = true) |
-    VInstruction(dc3_for_inst(inst_head::inst_tail)) = 
+    VInstruction(Instruction_1(Skip))=(fn(tmi:TypeMapImp) => true) |
+
+    (* Validate assignment, basically have duplicates because we have int and bool versions *)
+    (* v: Variable, e *)
+    (* Note that her original definitions do not line up with ours *)
+    VInstruction(Instruction_2(v, Expression_1(e))) =
+        (fn (tmi:TypeMapImp) =>
+                VIntExp(e)(tmi) andalso (varITypeSearch(tmi)(v)=IntRep)) |
+    (* Bool version *)
+    VInstruction(Instruction_2(v, Expression_2(e))) =
+        (fn (tmi: TypeMapImp) =>
+                VBoolExp(e)(tmi) andalso (varITypeSearch(tmi)(v)=BoolRep)) |
+
+
+    (* Validate instruction list *)
+    VInstruction(Instruction_3([])) = (fn (tmi:TypeMapImp) => true) | (* An empty instruction list is valid *)
+    (* Recursively validate each element of the instruction list *)
+    VInstruction(Instruction_3(inst_head::inst_tail)) = 
         (fn (tmi:TypeMapImp) =>
             VInstruction(inst_head)(tmi) andalso 
-            VInstruction(dc3_for_instr(inst_tail)(tmi)))
-    VInstruction(dc4_for_inst(cond, t_branch, f_branch)) = 
+            VInstruction(Instruction_3(inst_tail))(tmi)) |
+
+
+    (* Validate if statement *)
+    VInstruction(Instruction_4(cond, t_branch, f_branch)) = 
         (fn (tmi:TypeMapImp) => VBoolExp(cond)(tmi) andalso
             VInstruction(t_branch)(tmi) andalso
             VInstruction(f_branch)(tmi)
-        );
+        ) |
+    
+    VInstruction(Instruction_5(cond, body)) = 
+        (fn (tmi:TypeMapImp) => VBoolExp(cond)(tmi) andalso VInstruction(body)(tmi));
+
+print("Testing 2.10\n");
+(* 6 good and 2 bad tests *)
+
+
+VInstruction(Instruction_1(Skip))(testVariables); (* Instruction_1 *) (* Good case *)
+VInstruction(inst1)(testVariables); (* Instruction_2, integer *) (* Good case *)
+VInstruction(thenStatement2)(testVariables); (* Instruction_2, boolean *) (* Good case *)
+VInstruction(insts1)(testVariables); (* Instruction_3 *) (* Good case *)
+VInstruction(ifBlock1)(testVariables); (* Instruction_4 *) (* Good case *)
+VInstruction(whileBlock)(testVariables); (* Instruction_5 *) (* Good case *)
+
+(* Bad case, assign a bool to an integer variable *)
+VInstruction(
+        Instruction_2(
+                "n":Variable, (* This is an integer in the original program *)
+                Expression_2(BooleanExpression_1(false))
+        )
+)(testVariables);
+
+(* Bad case, assign a integer to a bool variable *)
+VInstruction(
+        Instruction_2(
+                "tprime":Variable, (* This is an integer in the original program *)
+                Expression_1(IntegerExpression_1(1337))
+        )
+)(testVariables);
