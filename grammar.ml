@@ -261,3 +261,41 @@ VBoolExp(BooleanExpression_4(whileCond, And, ifCond2));		(* good test BooleanExp
 
 VBoolExp(BooleanExpression_2(v1));				(* bad test IntegerExpression_2 *)
 (* VBoolExp(BooleanExpression_2()); ERROR*)
+
+
+
+
+(* 2.10 *)
+(* datatype Skip_Const = Skip;
+datatype Instruction = 
+    Instruction_1 of Skip_Const 
+|   Instruction_2 of (Variable * Expression)
+|   Instruction_3 of Instruction list
+|   Instruction_4 of (BooleanExpression * Instruction * Instruction)
+|   Instruction_5 of (BooleanExpression * Instruction); *)
+
+(* So, instruction represents
+    Instruction_1: skip
+    Instruction_2: assignment
+    Instruction_3: list of these
+    Instruction_4: while loop
+    Instruction_5: if
+
+    list of the above*)
+
+fun
+    (* Validate Skip *)
+    VInstruction(skip)=(fn(tmi:TypeMapImp) => true) |
+    VInstruction((v, dc1_for_e(e))) =
+        VIntExp(e)(tmi) andalso (VarITypeSearch(tmi)(v)=IntRep) |
+    VInstruction(dc2_for_inst(v, dc2_for_e(e))) = ..... |
+    VInstruction(dc3_for_inst([])) = (fn (tmi:TypeMapImp) = true) |
+    VInstruction(dc3_for_inst(inst_head::inst_tail)) = 
+        (fn (tmi:TypeMapImp) =>
+            VInstruction(inst_head)(tmi) andalso 
+            VInstruction(dc3_for_instr(inst_tail)(tmi)))
+    VInstruction(dc4_for_inst(cond, t_branch, f_branch)) = 
+        (fn (tmi:TypeMapImp) => VBoolExp(cond)(tmi) andalso
+            VInstruction(t_branch)(tmi) andalso
+            VInstruction(f_branch)(tmi)
+        );
