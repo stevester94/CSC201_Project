@@ -206,9 +206,9 @@ fun DecListToTypeMapImp([])=[] |
 	DecListToTypeMapImp((declist_head::declist_tail):DeclarationList)=TypeMapPlusOne(DecListToTypeMapImp(declist_tail))(declist_head);
 
 (*Testing *)
+print("\n\nCreating symbol table\n");
 val testVariables = DecListToTypeMapImp(declares);
 val result = varITypeSearch(testVariables);
-
 val var1 = varITypeSearch([]);
 
 
@@ -259,11 +259,11 @@ val rec VIntExp =
 (*Testing 2.8 *)
 print("\nTesting 2.8\n");
 
-VIntExp(IntegerExpression_1(0));				(* good test IntegerExpression_1 *)
-VIntExp(IntegerExpression_2(v1)); 				(* good test IntegerExpression_2 *)
-VIntExp(whileArith2);						(* good test IntegerExpression_3 *)
+VIntExp(IntegerExpression_1(0))(testVariables);			(* good test IntegerExpression_1 *)
+VIntExp(IntegerExpression_2(v1))(testVariables);		(* good test IntegerExpression_2 *)
+VIntExp(whileArith2)(testVariables);				(* good test IntegerExpression_3 *)
 
-VIntExp(IntegerExpression_2(v6));				(* bad test IntegerExpression_2 *)
+VIntExp(IntegerExpression_2(v6))(testVariables);		(* bad test IntegerExpression_2 *)
 (* VIntExp(IntegerExpression_3(whileCond, Plus, whileArith2));	(* bad test IntegerExpression_3 *) ERROR*)
 
 
@@ -280,10 +280,10 @@ val rec VBoolExp =
 (*Testing 2.9*)
 print("\nTesting 2.9\n");
 
-VBoolExp(BooleanExpression_1(true));				(* good test BooleanExpression_1 *)
-VBoolExp(BooleanExpression_2(v6));				(* good test BooleanExpression_2 *)
-VBoolExp(ifCond2);						(* good test BooleanExpression_3 *)
-VBoolExp(BooleanExpression_4(whileCond, And, ifCond2));		(* good test BooleanExpression_4 *)
+VBoolExp(BooleanExpression_1(true))(testVariables);				(* good test BooleanExpression_1 *)
+VBoolExp(BooleanExpression_2(v6))(testVariables);				(* good test BooleanExpression_2 *)
+VBoolExp(ifCond2)(testVariables);						(* good test BooleanExpression_3 *)
+VBoolExp(BooleanExpression_4(whileCond, And, ifCond2))(testVariables);		(* good test BooleanExpression_4 *)
 
-VBoolExp(BooleanExpression_2(v1));				(* bad test IntegerExpression_2 *)
+VBoolExp(BooleanExpression_2(v1))(testVariables);				(* bad test IntegerExpression_2 *)
 (* VBoolExp(BooleanExpression_2()); ERROR*)
