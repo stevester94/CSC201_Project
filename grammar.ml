@@ -229,9 +229,13 @@ val rec VIntExp =
 								andalso VIntExp(ie2)(tmi));
 	 
 (*Testing 2.8 *)
-VIntExp(IntegerExpression_1(0));		(* good test IntegerExpression_1 *)
-VIntExp(IntegerExpression_2(v1)); 		(* good test IntegerExpression_2 *)
-VIntExp(whileArith2);				(* good test IntegerExpression_3 *)
+VIntExp(IntegerExpression_1(0));				(* good test IntegerExpression_1 *)
+VIntExp(IntegerExpression_2(v1)); 				(* good test IntegerExpression_2 *)
+VIntExp(whileArith2);						(* good test IntegerExpression_3 *)
+
+VIntExp(IntegerExpression_2(v6));				(* bad test IntegerExpression_2 *)
+(* VIntExp(IntegerExpression_3(whileCond, Plus, whileArith2));	(* bad test IntegerExpression_3 *) ERROR*)
+
 
 (*step 2.9*)
 val rec VBoolExp =
@@ -243,4 +247,10 @@ val rec VBoolExp =
                                                                 andalso VBoolExp(be2)(tmi));
 
 (*Testing 2.9*)
-VBoolExp(ifCond2)				(* good test BooleanExpression_3 *)
+VBoolExp(BooleanExpression_1(true));				(* good test BooleanExpression_1 *)
+VBoolExp(BooleanExpression_2(v6));				(* good test BooleanExpression_2 *)
+VBoolExp(ifCond2);						(* good test BooleanExpression_3 *)
+VBoolExp(BooleanExpression_4(whileCond, And, ifCond2));		(* good test BooleanExpression_4 *)
+
+VBoolExp(BooleanExpression_2(v1));				(* bad test IntegerExpression_2 *)
+(* VBoolExp(BooleanExpression_2()); ERROR*)
