@@ -388,6 +388,10 @@ exception InvalidDecList;
      else raise InvalidDecList;
 (*testing good Case*)
      VProgram(ourProgram);
- (*badcase*)
 
 
+(* Bad case, reuse invalid declist, and a valid instruction *)
+VProgram((
+        badtestlist,
+        inst3
+));
