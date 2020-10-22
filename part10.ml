@@ -191,12 +191,15 @@ val ourProgram = (
 *)
 
 (*step 2.1 *)
+print("\nBeginning Step 2.1\n");
 datatype IType = IntRep | BoolRep | NoDecRep;
 
 (*step 2.2 *)
+print("\nBeginning Step 2.2\n");
 type TypeMapImp = (Variable*IType)list;
 
 (*step 2.3 *)
+print("\nBeginning Step 2.3\n");
 (*varITypeSearch: TypeMapImp->Variables->IType*)
 val rec varITypeSearch = fn([]:TypeMapImp)=>(fn(u:Variable)=>NoDecRep) | (((v,w)::map_tail):TypeMapImp)=>
 			(fn(u:Variable)=>if(u=v) then w
@@ -204,36 +207,49 @@ val rec varITypeSearch = fn([]:TypeMapImp)=>(fn(u:Variable)=>NoDecRep) | (((v,w)
 		 			varITypeSearch(map_tail)(u));
 
 (*step 2.4 *)
+print("\nBeginning Step 2.4\n");
 (*TypeMapPlusOne:TypeMapImp->Declaration->TypeMapImp *)
 val TypeMapPlusOne = (fn(TMOld:TypeMapImp)=>(fn(v:Variable,IntegerType)=>[(v,IntRep)]@TMOld | (v:Variable,BooleanType)=>[(v,BoolRep)]@TMOld));
 
 (* step 2.5 
    DecListToTypeMapImp:DeclarationList-->TypeMapImp
 *)
+print("\nBeginning Step 2.5\n");
 fun DecListToTypeMapImp([])=[] |
 	DecListToTypeMapImp((declist_head::declist_tail):DeclarationList)=TypeMapPlusOne(DecListToTypeMapImp(declist_tail))(declist_head);
 
-(*Testing *)
-val testVariables = DecListToTypeMapImp(declares);
-val result = varITypeSearch(testVariables);
+(*Testing 2.5*)
+print("\nTesting 2.5\n");
+val testVariables = DecListToTypeMapImp(declares);	(* good test *)
+val var1 = varITypeSearch([]);				(* bad test *)
 
-val var1 = varITypeSearch([]);
+(*Testing 2.3*)
+print("\nTesting Step 2.3\n");
+varITypeSearch(testVariables)(v1);
+varITypeSearch(testVariables)(v2);
+varITypeSearch(testVariables)(v3);
+varITypeSearch(testVariables)(v4);
+varITypeSearch(testVariables)(v5);
+varITypeSearch(testVariables)(v6);
+
 
 
 (* step 2.6
    VarNotInDecList:Declist-->Variable-->Bool
 *)
+print("\nBeginning Step 2.6\n");
 val rec VarNotInDecList = fn([]:DeclarationList)=>(fn(v:Variable)=>true) |
 			((x:Variable,y:Type)::declist_tail)=>(fn(v:Variable)=>VarNotInDecList(declist_tail)(v) andalso (v<>x));
 
 (* step 2.7 
    ValidDecList:DecList-->Bool
 *)
+print("\nBeginning Step 2.7\n");
 val rec ValidDecList= fn([])=> true |
 	((x:Variable,y:Type)::declist_tail)=>VarNotInDecList(declist_tail)(x) andalso ValidDecList(declist_tail);
 
 (*Testing 2.7 *)
-
+print("\nTesting Step 2.7\n");
 (* 1 Good case *)
 val testlist  = [
     (v1, IntegerType),
@@ -260,7 +276,7 @@ ValidDecList badtestlist;
 (* step 2.8
    VIntExp: IntExp-->TypeMapImp-->Bool
 *)
-print("\nBeginning step 2.8\n");
+print("\nBeginning Step 2.8\n");
 
 val rec VIntExp = 
 	fn(IntegerExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
@@ -269,7 +285,7 @@ val rec VIntExp =
 								andalso VIntExp(ie2)(tmi));
 	 
 (*Testing 2.8 *)
-print("\nTesting 2.8\n");
+print("\nTesting Step 2.8\n");
 
 VIntExp(IntegerExpression_1(0));				(* good test IntegerExpression_1 *)
 VIntExp(IntegerExpression_2(v1)); 				(* good test IntegerExpression_2 *)
@@ -282,7 +298,7 @@ VIntExp(IntegerExpression_3(IntegerExpression_1(0), Plus , IntegerExpression_2(v
 (* step 2.9
    VBoolExp: BoolRep-->TypeMapImp-->Bool
 *)
-print("\nBeginning step 2.9\n");
+print("\nBeginning Step 2.9\n");
 val rec VBoolExp =
         fn(BooleanExpression_1(i)) => (fn(tmi:TypeMapImp) => true) |
         (BooleanExpression_2(v)) => (fn(tmi:TypeMapImp) => varITypeSearch(tmi)(v) = BoolRep) |
@@ -292,7 +308,7 @@ val rec VBoolExp =
                                                                 andalso VBoolExp(be2)(tmi));
 
 (*Testing 2.9*)
-print("\nTesting 2.9\n");
+print("\nTesting Step 2.9\n");
 
 VBoolExp(BooleanExpression_1(true));				(* good test BooleanExpression_1 *)
 VBoolExp(BooleanExpression_2(v6));				(* good test BooleanExpression_2 *)
@@ -314,7 +330,7 @@ VBoolExp(BooleanExpression_3(IntegerExpression_1(1), Ge, IntegerExpression_2(v1)
 *)
 
 
-print("Beginning Step 2.10\n");
+print("\nBeginning Step 2.10\n");
 fun
     (* Validate Skip *)
     VInstruction(Instruction_1(Skip))=(fn(tmi:TypeMapImp) => true) |
@@ -350,7 +366,7 @@ fun
     VInstruction(Instruction_5(cond, body)) = 
         (fn (tmi:TypeMapImp) => VBoolExp(cond)(tmi) andalso VInstruction(body)(tmi));
 
-print("Testing 2.10\n");
+print("\nTesting Step 2.10\n");
 (* 6 good and 2 bad tests *)
 
 
@@ -379,14 +395,18 @@ VInstruction(
 
 (* 2.11 *)
 (* Validity check for the whole program *)
-
+print("\nBeginning Step 2.11\n");
 exception InvalidDecList;
 
 (* step 2.12 *)
+print("\nBeginning Step 2.12\n");
+
      val VProgram = fn((declist, prog):Program)=> if ValidDecList(declist)
       then VInstruction(prog)(DecListToTypeMapImp(declist))
      else raise InvalidDecList;
+
 (*testing good Case*)
+print("\nTesting Step 2.12\n");
      VProgram(ourProgram);
 
 

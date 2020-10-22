@@ -212,6 +212,11 @@ val result = varITypeSearch(testVariables);
 val var1 = varITypeSearch([]);
 
 
+print("\nNew Test\n");
+varITypeSearch(testVariables)(v1);
+
+print("\n");
+
 (*step 2.6 *)
 val rec VarNotInDecList = fn([]:DeclarationList)=>(fn(v:Variable)=>true) |
 			((x:Variable,y:Type)::declist_tail)=>(fn(v:Variable)=>VarNotInDecList(declist_tail)(v) andalso (v<>x));
@@ -234,6 +239,7 @@ val testlist  = [
     (v6, BooleanType)
     ];
 ValidDecList testlist;
+ValidDecList declares;
 
 (* 1 Bad case - Redundant*)
 val badtestlist  = [
@@ -264,7 +270,7 @@ VIntExp(IntegerExpression_2(v1))(testVariables);		(* good test IntegerExpression
 VIntExp(whileArith2)(testVariables);				(* good test IntegerExpression_3 *)
 
 VIntExp(IntegerExpression_2(v6))(testVariables);		(* bad test IntegerExpression_2 *)
-(* VIntExp(IntegerExpression_3(whileCond, Plus, whileArith2));	(* bad test IntegerExpression_3 *) ERROR*)
+(*VIntExp(IntegerExpression_3(whileCond, Plus, whileArith2))(testVariables);	(* bad test IntegerExpression_3 *)*)
 
 
 (*step 2.9*)
@@ -286,4 +292,7 @@ VBoolExp(ifCond2)(testVariables);						(* good test BooleanExpression_3 *)
 VBoolExp(BooleanExpression_4(whileCond, And, ifCond2))(testVariables);		(* good test BooleanExpression_4 *)
 
 VBoolExp(BooleanExpression_2(v1))(testVariables);				(* bad test IntegerExpression_2 *)
-(* VBoolExp(BooleanExpression_2()); ERROR*)
+
+val v10 = true;
+VBoolExp(BooleanExpression_2(v10))(testVariables);
+(*VBoolExp(BooleanExpression_2(v10,NoDecRep))(testVariables);*)
