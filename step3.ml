@@ -489,6 +489,8 @@ exception DivisionError;
 
 (* 3.6 *)
 exception ArithExpError;
+
+(* 3.7 *)
 (* MeaningArithExp: Value*ArithOp*Value->Value  *)
 fun MeaningArithExp(IV(v1),Plus,IV(v2)) = IV(v1+v2) | 
     MeaningArithExp(IV(v1),Minus,IV(v2)) = IV(v1-v2) | 
