@@ -482,8 +482,9 @@ m3(v4);
 m3(v5);
 m3(v6);
 
+(* Steps 3.5 through 3.13
+   Purpose: Meaning of Expression *)
 
-(* Meaning of Expression *)
 (* 3.5 *)
 exception DivisionError;
 
@@ -497,14 +498,84 @@ fun MeaningArithExp(IV(v1),Plus,IV(v2)) = IV(v1+v2) |
     MeaningArithExp(IV(v1),Times,IV(v2)) = IV(v1*v2) |
     MeaningArithExp(IV(v1),Div,IV(v2)) = if v2=0 then raise DivisionError 
 					else IV(v1 div v2) |
-    MeaningArithExp(IV(v1),Mod,IV(v2)) = raise ArithExpError;
+    MeaningArithExp(_,_,_) = raise ArithExpError;
 
 (* 6 test cases
    good and bad
    using fun  *)
+val num1 = MeaningArithExp(IV(4), Plus, IV(2));
+val num2 = MeaningArithExp(IV(4), Minus, IV(2));
+val num3 = MeaningArithExp(IV(4), Times, IV(2));
+val num4 = MeaningArithExp(IV(4), Div, IV(2));
+(*val num5 = MeaningArithExp(IV(4), Div, IV(0)); (* Un comment when testing *) *)
+val num6 = MeaningArithExp(IV(0), Div, IV(5) );
 
-		
 
-   					
+(* 3.8 Testing 
+   All the bad cases divide by zero
+   --Uncomment these divide by zero tests when testing 
+*)
 
+(*val num6 = MeaningArithExp(IV(4), Div, IV(0)); *)
+(*val num7 = MeaningArithExp(IV(0), Div, IV(3)); *)
+(*val num8 = MeaningArithExp(IV(0), Div, IV(0)); *)
+
+
+(* 3.9 *)
+(*MeaningRelationExp: Value*RelationalOp*Value->Value *)
+
+fun MeaningRelationExp(IV(v1),Lt,IV(v2)) = BV(v1<v2)  |
+    MeaningRelationExp(IV(v1),Le,IV(v2)) = BV(v1<=v2) |
+    MeaningRelationExp(IV(v1),Eq,IV(v2)) = BV(v1=v2)  |
+    MeaningRelationExp(IV(v1),Ne,IV(v2)) = BV(v1<>v2) |
+    MeaningRelationExp(IV(v1),Ge,IV(v2)) = BV(v1>=v2) |
+    MeaningRelationExp(IV(v1),Gt,IV(v2)) = BV(v1>v2);
+
+(* 3.10 *)
+(* Testing for 3.9, one test case for each pattern *)
+val relation1 = MeaningRelationExp(IV(4), Lt, IV(3));
+val relation2 = MeaningRelationExp(IV(3), Le, IV(5));
+val relation3 = MeaningRelationExp(IV(4), Eq, IV(3));
+val relation4 = MeaningRelationExp(IV(4), Ne, IV(3));
+val relation5 = MeaningRelationExp(IV(4), Ge, IV(3));
+val relation6 = MeaningRelationExp(IV(4), Gt, IV(3));
+
+
+
+(* 3.11 *)
+(* MeaningBoolExp: Value*BooleanOp*Value->Value *)
+
+fun MeaningBoolExp(BV(v1),And ,BV(v2)) = BV(v1 andalso v2) |
+    MeaningBoolExp(BV(v1),Or ,BV(v2)) = BV(v1 orelse v2);
+
+(* Testing for 3.11 One test case for each pattern  *)
+val boolExp1 = MeaningBoolExp(BV(true), And, BV(false));
+val boolExp2 = MeaningBoolExp(BV(false), Or, BV(true));
+
+(* 3.12 *)
+(* MeaningIntExp: IntExp->ProgState->Value  *)
+fun MeaningIntExp(IntegerExpression_1(i))(State:ProgState)= IV(i) |
+ 				MeaningIntExp(IntegerExpression_2(v))(State:ProgState)=State(v) |
+				MeaningIntExp(IntegerExpression_3(ie1, aop, ie2))(State:ProgState)=MeaningArithExp(MeaningIntExp(ie1)(State), aop, MeaningIntExp(ie2) (State))
+
+(* Test for 3.12
+   3 Test cases, test each pattern. 
+   Prepare a function with memory state
+ *)
+
+
+(* 3.13 *)
+(* MeaningBooleanExpr: BoolExp->ProgState->Value  *)
+fun MeaningBooleanExpr(BooleanExpression_1(i))(State:ProgState)= BV(i) |
+                                MeaningBooleanExpr(BooleanExpression_2(v))(State:ProgState)=State(v) |
+                                (*MeaningBooleanExpr(BooleanExpression_3(ie1, rop, ie2))(State:ProgState)=MeaningBoolExp(MeaningIntExp(ie1)(State), rop, MeaningIntExp(ie2) (State)) |*)
+				MeaningBooleanExpr(BooleanExpression_4(be1, bop, be2))(State:ProgState)=MeaningBoolExp(MeaningBooleanExpr(be1)(State), bop, MeaningBooleanExpr(be2) (State)) 
+
+
+
+(* Test for 3.13
+   4 Test cases *)
+
+(* 3.14 *)
+(* MeaningRelationExpr: IntExp->ProgState->Value  *)
 
