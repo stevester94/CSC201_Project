@@ -549,9 +549,10 @@ fun MeaningBoolExp(BV(v1),And ,BV(v2)) = BV(v1 andalso v2) |
     MeaningBoolExp(BV(v1),Or ,BV(v2)) = BV(v1 orelse v2);
 
 (* Testing for 3.11 One test case for each pattern  *)
+print("Begin testing for 3.11\n");
 val boolExp1 = MeaningBoolExp(BV(true), And, BV(false));
 val boolExp2 = MeaningBoolExp(BV(false), Or, BV(true));
-
+print("End testing for 3.11\n");
 (* 3.12 *)
 (* MeaningIntExp: IntExp->ProgState->Value  *)
 fun MeaningIntExp(IntegerExpression_1(i))(State:ProgState)= IV(i) |
@@ -562,11 +563,12 @@ fun MeaningIntExp(IntegerExpression_1(i))(State:ProgState)= IV(i) |
    3 Test cases, test each pattern. 
    Prepare a function with memory state
  *)
-
-MeaningIntExp(IntegerExpression_1(5));
-MeaningIntExp(IntegerExpression_2(v4));
-MeaningIntExp(IntegerExpression_3(IntegerExpression_1(7), Minus, IntegerExpression_1(6)));
-
+val state_3_12 = ProgStateUpdate(InitialProgState) (v4)(IV(1337));
+print("Begin testing for 3.12\n");
+print("Expect 5\n");    MeaningIntExp(IntegerExpression_1(5))(state_3_12);
+print("Expect 1337\n"); MeaningIntExp(IntegerExpression_2(v4))(state_3_12);
+print("Expect 1336\n"); MeaningIntExp(IntegerExpression_3(IntegerExpression_2(v4), Minus, IntegerExpression_1(1)))(state_3_12);
+print("End testing for 3.12\n");
 
 (* 3.13 *)
 (* MeaningBooleanExpr: BoolExp->ProgState->Value  *)
@@ -579,42 +581,109 @@ fun MeaningBooleanExpr(BooleanExpression_1(i))(State:ProgState)= BV(i) |
 
 (* Test for 3.13
    4 Test cases *)
-MeaningBooleanExpr(BooleanExpression_1(true));
-MeaningBooleanExpr(BooleanExpression_2(v6));
-MeaningBooleanExpr(BooleanExpression_3(IntegerExpression_1(6), Ne, IntegerExpression_1(6)));
-MeaningBooleanExpr(BooleanExpression_4(BooleanExpression_1(true), And, BooleanExpression_1(false)));
-
+print("Begin testing for 3.13\n");
+val state_3_13 = ProgStateUpdate(InitialProgState) (v6)(BV(false));
+print("Expect true\n"); MeaningBooleanExpr(BooleanExpression_1(true))(state_3_13);
+print("Expect false\n"); MeaningBooleanExpr(BooleanExpression_2(v6))(state_3_13);
+print("Expect false\n"); MeaningBooleanExpr(BooleanExpression_3(IntegerExpression_1(6), Ne, IntegerExpression_1(6)))(state_3_13);
+print("Expect false\n"); MeaningBooleanExpr(BooleanExpression_4(BooleanExpression_1(true), And, BooleanExpression_1(false)))(state_3_13);
+print("End testing for 3.13\n");
 
 (* 3.14 *)
 (* MeaningExpression: Expression->ProgState->Value 
    Bridge function 
 *)
 
-val rec MeaningExpression = fn(MeaningIntExp(IntegerExpression_1)(i))=> (fn(State:ProgState)=> IV(i)) |   (* ERROR *)
-			    fn(MeaningIntExp(IntegerExpression_2)(v))=> (fn(State:ProgState)=>State(v));
-			
+
+val rec MeaningExpression = 
+                fn(Expression_2(e)) => MeaningBooleanExpr(e) |   (* ERROR *)
+			      (Expression_1(e)) => MeaningIntExp(e);   (* ERROR *)
+
+
+
 (* No Testing for 3.14 *)
 
 (* 3.15  *)
 (* MeaningInstruction:Instruction->ProgState->ProgState 
 				   Start with some Memory and end up with some memory 
 *)
-val MeaningInstruction = (fn(Skip)=>(fn(State:ProgState)=>State) | (* no change  *)
-			(Instruction_2(v,e))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) (MeaningExpression(e) (State))) |     (* ERROR  *)
-			(Instruction_3([]))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) (MeaningExpression(e) (State))) 
-			(Instruction_3(inst_head::inst_tail))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) MeaningInstruction(Instruction_3(inst_tail))
-			(MeaningInstruction(inst_head)(State))) |
-			(Instruction_4(cond, t_branch,f_branch))=>(fn(State:ProgState)=>if MeaningBoolExp(cond)(State) = BV(true) then
-			MeaningInstruction(t_branch)(State) else
-			(Instruction_5(cond,body))=>(fn(State:ProgState)=>if MeaningBoolExp(cond)(State)=BV(true) then
-			MeaningInstruction(Instruction_4(cond,body))(MeaningInstruction(body)(State)))))
-
+val rec MeaningInstruction = 
+            fn(Instruction_1(Skip)) =>(fn(State:ProgState) => State) | (* no change *)
+			(Instruction_2(v,e))    =>(fn(State:ProgState) => ProgStateUpdate(State)(v) ( MeaningExpression(e)(State) ) ) |
+			(Instruction_3([]))     =>(fn(State:ProgState) => State)  | (* SMackey: Empty instruction list -> no state change *)
+			(Instruction_3(inst_head::inst_tail))=>(fn(State:ProgState)=>MeaningInstruction(Instruction_3(inst_tail))(MeaningInstruction(inst_head)(State))) | (* SMackey: Is this the correct order? *)
+			(Instruction_4(cond, t_branch,f_branch))=>(fn(State:ProgState)=>
+                if MeaningBooleanExpr(cond)(State) = BV(true) then
+			        MeaningInstruction(t_branch)(State) 
+                else 
+                    MeaningInstruction(f_branch)(State)) |
+            (Instruction_5(cond,body))=>(fn(State:ProgState)=>
+                if MeaningBooleanExpr(cond)(State)=BV(true) then
+                    MeaningInstruction(Instruction_5(cond,body))(MeaningInstruction(body)(State))
+                else
+                    State);
 (* Test for 3.15
    5 Test Cases *)
 
-				
-		
+(* Will be using v1:Int for these tests 
+    as well as instructions to add 1 to v1, and multiply v1 by 0*)
+print("Begin 3.15 testing\n");
+val state_3_15 = ProgStateUpdate(InitialProgState) (v1)(IV(0));
+val add_one_to_v1 = Instruction_2(
+    v1, 
+    Expression_1(IntegerExpression_3(
+        IntegerExpression_2(v1), 
+        Plus, 
+        IntegerExpression_1(1)
+    ))
+);
+
+val times_0_to_v1 = Instruction_2(
+    v1, 
+    Expression_1(IntegerExpression_3(
+        IntegerExpression_2(v1), 
+        Times, 
+        IntegerExpression_1(0)
+    ))
+);
+
+(* Actual tests  *)
+val state_3_15 = MeaningInstruction(Instruction_1(Skip))(state_3_15);
+print("Expect 0\n"); state_3_15(v1);
+
+
+val state_3_15 = MeaningInstruction(add_one_to_v1)(state_3_15);
+print("Expect 1\n"); state_3_15(v1);
+
+
+MeaningInstruction(Instruction_3([]))(state_3_15);
+print("Expect 1\n"); state_3_15(v1);
+
+val state_3_15 = MeaningInstruction(Instruction_3([times_0_to_v1, add_one_to_v1, add_one_to_v1]))(state_3_15);
+print("Expect 2\n"); state_3_15(v1);
+
+val state_3_15 = MeaningInstruction(
+    Instruction_4(
+        BooleanExpression_1(true),
+        times_0_to_v1,
+        add_one_to_v1
+    )
+)(state_3_15);
+print("Expect 0\n"); state_3_15(v1);
+
+val state_3_15 = MeaningInstruction(
+    Instruction_5(
+        BooleanExpression_3(
+            IntegerExpression_2(v1),
+            Lt,
+            IntegerExpression_1(10)
+        ),
+        add_one_to_v1
+    )
+)(state_3_15);
+print("Expect 10\n"); state_3_15(v1);
+
+
+
 (* 3.16 *)
-exception ProgramError;
-
-
+(* exception ProgramError; *)
