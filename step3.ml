@@ -556,26 +556,65 @@ val boolExp2 = MeaningBoolExp(BV(false), Or, BV(true));
 (* MeaningIntExp: IntExp->ProgState->Value  *)
 fun MeaningIntExp(IntegerExpression_1(i))(State:ProgState)= IV(i) |
  				MeaningIntExp(IntegerExpression_2(v))(State:ProgState)=State(v) |
-				MeaningIntExp(IntegerExpression_3(ie1, aop, ie2))(State:ProgState)=MeaningArithExp(MeaningIntExp(ie1)(State), aop, MeaningIntExp(ie2) (State))
+				MeaningIntExp(IntegerExpression_3(ie1, aop, ie2))(State:ProgState)=MeaningArithExp(MeaningIntExp(ie1)(State), aop, MeaningIntExp(ie2) (State));
 
 (* Test for 3.12
    3 Test cases, test each pattern. 
    Prepare a function with memory state
  *)
 
+MeaningIntExp(IntegerExpression_1(5));
+MeaningIntExp(IntegerExpression_2(v4));
+MeaningIntExp(IntegerExpression_3(IntegerExpression_1(7), Minus, IntegerExpression_1(6)));
+
 
 (* 3.13 *)
 (* MeaningBooleanExpr: BoolExp->ProgState->Value  *)
 fun MeaningBooleanExpr(BooleanExpression_1(i))(State:ProgState)= BV(i) |
                                 MeaningBooleanExpr(BooleanExpression_2(v))(State:ProgState)=State(v) |
-                                (*MeaningBooleanExpr(BooleanExpression_3(ie1, rop, ie2))(State:ProgState)=MeaningBoolExp(MeaningIntExp(ie1)(State), rop, MeaningIntExp(ie2) (State)) |*)
-				MeaningBooleanExpr(BooleanExpression_4(be1, bop, be2))(State:ProgState)=MeaningBoolExp(MeaningBooleanExpr(be1)(State), bop, MeaningBooleanExpr(be2) (State)) 
+                                MeaningBooleanExpr(BooleanExpression_3(ie1, rop, ie2))(State:ProgState)=MeaningRelationExp(MeaningIntExp(ie1)(State), rop, MeaningIntExp(ie2) (State)) |
+				MeaningBooleanExpr(BooleanExpression_4(be1, bop, be2))(State:ProgState)=MeaningBoolExp(MeaningBooleanExpr(be1)(State), bop, MeaningBooleanExpr(be2) (State));
 
 
 
 (* Test for 3.13
    4 Test cases *)
+MeaningBooleanExpr(BooleanExpression_1(true));
+MeaningBooleanExpr(BooleanExpression_2(v6));
+MeaningBooleanExpr(BooleanExpression_3(IntegerExpression_1(6), Ne, IntegerExpression_1(6)));
+MeaningBooleanExpr(BooleanExpression_4(BooleanExpression_1(true), And, BooleanExpression_1(false)));
+
 
 (* 3.14 *)
-(* MeaningRelationExpr: IntExp->ProgState->Value  *)
+(* MeaningExpression: Expression->ProgState->Value 
+   Bridge function 
+*)
+
+val rec MeaningExpression = fn(MeaningIntExp(IntegerExpression_1)(i))=> (fn(State:ProgState)=> IV(i)) |   (* ERROR *)
+			    fn(MeaningIntExp(IntegerExpression_2)(v))=> (fn(State:ProgState)=>State(v));
+			
+(* No Testing for 3.14 *)
+
+(* 3.15  *)
+(* MeaningInstruction:Instruction->ProgState->ProgState 
+				   Start with some Memory and end up with some memory 
+*)
+val MeaningInstruction = (fn(Skip)=>(fn(State:ProgState)=>State) | (* no change  *)
+			(Instruction_2(v,e))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) (MeaningExpression(e) (State))) |     (* ERROR  *)
+			(Instruction_3([]))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) (MeaningExpression(e) (State))) 
+			(Instruction_3(inst_head::inst_tail))=>(fn(State:ProgState)=>ProgStateUpdate(State)(v) MeaningInstruction(Instruction_3(inst_tail))
+			(MeaningInstruction(inst_head)(State))) |
+			(Instruction_4(cond, t_branch,f_branch))=>(fn(State:ProgState)=>if MeaningBoolExp(cond)(State) = BV(true) then
+			MeaningInstruction(t_branch)(State) else
+			(Instruction_5(cond,body))=>(fn(State:ProgState)=>if MeaningBoolExp(cond)(State)=BV(true) then
+			MeaningInstruction(Instruction_4(cond,body))(MeaningInstruction(body)(State)))))
+
+(* Test for 3.15
+   5 Test Cases *)
+
+				
+		
+(* 3.16 *)
+exception ProgramError;
+
 
