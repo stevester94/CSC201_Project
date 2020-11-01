@@ -1,0 +1,418 @@
+Standard ML of New Jersey v110.75 [built: Mon Jan 28 12:50:59 2013]
+- type Variable = string
+type Integer_Constant = int
+type Boolean_Constant = bool
+datatype Arithmatic_Op = Div | Minus | Plus | Times
+datatype Relational_Op = Eq | Ge | Gt | Le | Lt | Ne
+datatype Boolean_Op = And | Or
+datatype IntegerExpression
+  = IntegerExpression_1 of int
+  | IntegerExpression_2 of string
+  | IntegerExpression_3 of IntegerExpression * Arithmatic_Op * 
+                           IntegerExpression
+datatype BooleanExpression
+  = BooleanExpression_1 of bool
+  | BooleanExpression_2 of string
+  | BooleanExpression_3 of IntegerExpression * Relational_Op * 
+                           IntegerExpression
+  | BooleanExpression_4 of BooleanExpression * Boolean_Op * BooleanExpression
+datatype Expression
+  = Expression_1 of IntegerExpression | Expression_2 of BooleanExpression
+datatype Skip_Const = Skip
+datatype Instruction
+  = Instruction_1 of Skip_Const
+  | Instruction_2 of string * Expression
+  | Instruction_3 of Instruction list
+  | Instruction_4 of BooleanExpression * Instruction * Instruction
+  | Instruction_5 of BooleanExpression * Instruction
+datatype Type = BooleanType | IntegerType
+type Declaration = Variable * Type
+type DeclarationList = Declaration list
+type Program = DeclarationList * Instruction
+val v1 = "n" : string
+val v2 = "reverse" : string
+val v3 = "sum" : string
+val v4 = "flag" : string
+val v5 = "j" : string
+val v6 = "tprime" : string
+val declares =
+  [("n",IntegerType),("reverse",IntegerType),("sum",IntegerType),
+   ("flag",IntegerType),("j",IntegerType),("tprime",BooleanType)]
+  : (string * Type) list
+val inst1 = Instruction_2 ("sum",Expression_1 (IntegerExpression_1 0))
+  : Instruction
+val inst2 = Instruction_2 ("n",Expression_1 (IntegerExpression_1 13))
+  : Instruction
+val insts1 =
+  Instruction_3
+    [Instruction_2 ("sum",Expression_1 #),Instruction_2 ("n",Expression_1 #)]
+  : Instruction
+val whileCond =
+  BooleanExpression_3 (IntegerExpression_2 "n",Ne,IntegerExpression_1 0)
+  : BooleanExpression
+val whileArith1 =
+  IntegerExpression_3
+    (IntegerExpression_2 "n",Minus,
+     IntegerExpression_3 (IntegerExpression_1 #,Times,IntegerExpression_3 #))
+  : IntegerExpression
+val whileInst1 =
+  Instruction_2 ("reverse",Expression_1 (IntegerExpression_3 (#,#,#)))
+  : Instruction
+val whileArith2 =
+  IntegerExpression_3
+    (IntegerExpression_3 (IntegerExpression_2 #,Times,IntegerExpression_1 #),
+     Plus,IntegerExpression_2 "reverse") : IntegerExpression
+val whileInst2 =
+  Instruction_2 ("sum",Expression_1 (IntegerExpression_3 (#,#,#)))
+  : Instruction
+val whileArith3 =
+  IntegerExpression_3 (IntegerExpression_2 "n",Div,IntegerExpression_1 10)
+  : IntegerExpression
+val whileInst3 =
+  Instruction_2 ("n",Expression_1 (IntegerExpression_3 (#,#,#))) : Instruction
+val whileBlock =
+  Instruction_5
+    (BooleanExpression_3 (IntegerExpression_2 #,Ne,IntegerExpression_1 #),
+     Instruction_3 [Instruction_2 #,Instruction_2 #,Instruction_2 #])
+  : Instruction
+val inst3 = Instruction_2 ("flag",Expression_1 (IntegerExpression_1 0))
+  : Instruction
+val inst4 = Instruction_2 ("j",Expression_1 (IntegerExpression_1 2))
+  : Instruction
+val insts2 =
+  Instruction_3
+    [Instruction_2 ("flag",Expression_1 #),Instruction_2 ("j",Expression_1 #)]
+  : Instruction
+val ifCond2 =
+  BooleanExpression_3 (IntegerExpression_2 "flag",Eq,IntegerExpression_1 0)
+  : BooleanExpression
+val thenStatement2 =
+  Instruction_2 ("tprime",Expression_2 (BooleanExpression_1 true))
+  : Instruction
+val elseStatement2 =
+  Instruction_2 ("tprime",Expression_2 (BooleanExpression_1 false))
+  : Instruction
+val ifBlock2 =
+  Instruction_4
+    (BooleanExpression_3 (IntegerExpression_2 #,Eq,IntegerExpression_1 #),
+     Instruction_2 ("tprime",Expression_2 #),
+     Instruction_2 ("tprime",Expression_2 #)) : Instruction
+val ifArith1 =
+  IntegerExpression_3
+    (IntegerExpression_2 "sum",Minus,
+     IntegerExpression_3 (IntegerExpression_2 #,Times,IntegerExpression_3 #))
+  : IntegerExpression
+val ifCond1 =
+  BooleanExpression_3
+    (IntegerExpression_3 (IntegerExpression_2 #,Minus,IntegerExpression_3 #),
+     Eq,IntegerExpression_1 0) : BooleanExpression
+val thenStatement1 =
+  Instruction_2 ("flag",Expression_1 (IntegerExpression_1 1)) : Instruction
+val ifBlock1 =
+  Instruction_4
+    (BooleanExpression_3 (IntegerExpression_3 #,Eq,IntegerExpression_1 #),
+     Instruction_2 ("flag",Expression_1 #),
+     Instruction_4 (BooleanExpression_3 #,Instruction_2 #,Instruction_2 #))
+  : Instruction
+val repeatArith1 =
+  IntegerExpression_3 (IntegerExpression_2 "j",Plus,IntegerExpression_1 1)
+  : IntegerExpression
+val repeatInst1 =
+  Instruction_2 ("j",Expression_1 (IntegerExpression_3 (#,#,#))) : Instruction
+val repeatBody =
+  Instruction_3
+    [Instruction_4 (BooleanExpression_3 #,Instruction_2 #,Instruction_4 #),
+     Instruction_2 ("j",Expression_1 #)] : Instruction
+val repeatCond =
+  BooleanExpression_3
+    (IntegerExpression_2 "j",Le,
+     IntegerExpression_3 (IntegerExpression_2 #,Div,IntegerExpression_1 #))
+  : BooleanExpression
+val repeatBlock1 =
+  Instruction_3
+    [Instruction_3 [Instruction_4 #,Instruction_2 #],
+     Instruction_5 (BooleanExpression_3 #,Instruction_3 #)] : Instruction
+val ourProgram =
+  ([("n",IntegerType),("reverse",IntegerType),("sum",IntegerType),
+    ("flag",IntegerType),("j",IntegerType),("tprime",BooleanType)],
+   Instruction_3
+     [Instruction_3 [#,#],Instruction_5 (#,#),Instruction_3 [#,#],
+      Instruction_3 [#,#],Instruction_4 (#,#,#)])
+  : (string * Type) list * Instruction
+
+Beginning Step 2.1
+val it = () : unit
+datatype IType = BoolRep | IntRep | NoDecRep
+
+Beginning Step 2.2
+val it = () : unit
+type TypeMapImp = (Variable * IType) list
+
+Beginning Step 2.3
+val it = () : unit
+val varITypeSearch = fn : TypeMapImp -> Variable -> IType
+
+Beginning Step 2.4
+val it = () : unit
+val TypeMapPlusOne = fn
+  : TypeMapImp -> Variable * Type -> (Variable * IType) list
+
+Beginning Step 2.5
+val it = () : unit
+val DecListToTypeMapImp = fn : Declaration list -> (Variable * IType) list
+
+Testing 2.5
+val it = () : unit
+val testVariables =
+  [("n",IntRep),("reverse",IntRep),("sum",IntRep),("flag",IntRep),
+   ("j",IntRep),("tprime",BoolRep)] : (Variable * IType) list
+val var1 = fn : Variable -> IType
+
+Testing Step 2.3
+val it = () : unit
+val it = IntRep : IType
+val it = IntRep : IType
+val it = IntRep : IType
+val it = IntRep : IType
+val it = IntRep : IType
+val it = BoolRep : IType
+
+Beginning Step 2.6
+val it = () : unit
+val VarNotInDecList = fn : DeclarationList -> Variable -> bool
+
+Beginning Step 2.7
+val it = () : unit
+val ValidDecList = fn : (Variable * Type) list -> bool
+
+Testing Step 2.7
+val it = () : unit
+val testlist =
+  [("n",IntegerType),("reverse",IntegerType),("sum",IntegerType),
+   ("flag",IntegerType),("j",IntegerType),("tprime",BooleanType)]
+  : (string * Type) list
+val it = true : bool
+val badtestlist =
+  [("n",IntegerType),("n",BooleanType),("sum",IntegerType),
+   ("flag",IntegerType),("j",IntegerType),("tprime",IntegerType)]
+  : (string * Type) list
+val it = false : bool
+
+Beginning Step 2.8
+val it = () : unit
+val VIntExp = fn : IntegerExpression -> TypeMapImp -> bool
+
+Testing Step 2.8
+val it = () : unit
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = false : bool
+val it = false : bool
+
+Beginning Step 2.9
+val it = () : unit
+val VBoolExp = fn : BooleanExpression -> TypeMapImp -> bool
+
+Testing Step 2.9
+val it = () : unit
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = false : bool
+val it = true : bool
+
+Beginning Step 2.10
+val it = () : unit
+val VInstruction = fn : Instruction -> TypeMapImp -> bool
+
+Testing Step 2.10
+val it = () : unit
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = true : bool
+val it = false : bool
+val it = false : bool
+
+Beginning Step 2.11
+val it = () : unit
+exception InvalidDecList
+
+Beginning Step 2.12
+val it = () : unit
+val VProgram = fn : Program -> bool
+
+Testing Step 2.12
+val it = () : unit
+val it = true : bool
+datatype Value = BV of bool | IV of int | NoInitialization
+type ProgState = Variable -> Value
+val InitialProgState = fn : Variable -> Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val ProgStateUpdate = fn : ProgState -> Variable -> Value -> Variable -> Value
+val m1 = fn : Variable -> Value
+val it = IV 6 : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val m2 = fn : Variable -> Value
+val it = IV 6 : Value
+val it = IV 8 : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val m3 = fn : Variable -> Value
+val it = IV 6 : Value
+val it = IV 8 : Value
+val it = IV 12 : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+val it = NoInitialization : Value
+exception DivisionError
+exception ArithExpError
+val MeaningArithExp = fn : Value * Arithmatic_Op * Value -> Value
+val num1 = IV 6 : Value
+val num2 = IV 2 : Value
+val num3 = IV 8 : Value
+val num4 = IV 2 : Value
+val num6 = IV 0 : Value
+stdIn:533.5-538.53 Warning: match nonexhaustive
+          (IV v1,Lt,IV v2) => ...
+          (IV v1,Le,IV v2) => ...
+          (IV v1,Eq,IV v2) => ...
+          (IV v1,Ne,IV v2) => ...
+          (IV v1,Ge,IV v2) => ...
+          (IV v1,Gt,IV v2) => ...
+  
+val MeaningRelationExp = fn : Value * Relational_Op * Value -> Value
+val relation1 = BV false : Value
+val relation2 = BV true : Value
+val relation3 = BV false : Value
+val relation4 = BV true : Value
+val relation5 = BV true : Value
+val relation6 = BV true : Value
+stdIn:554.5-555.57 Warning: match nonexhaustive
+          (BV v1,And,BV v2) => ...
+          (BV v1,Or,BV v2) => ...
+  
+val MeaningBoolExp = fn : Value * Boolean_Op * Value -> Value
+Begin testing for 3.11
+val it = () : unit
+val boolExp1 = BV false : Value
+val boolExp2 = BV true : Value
+End testing for 3.11
+val it = () : unit
+val MeaningIntExp = fn : IntegerExpression -> ProgState -> Value
+val state_3_12 = fn : Variable -> Value
+Begin testing for 3.12
+val it = () : unit
+Expect 5
+val it = () : unit
+val it = IV 5 : Value
+Expect 1337
+val it = () : unit
+val it = IV 1337 : Value
+Expect 1336
+val it = () : unit
+val it = IV 1336 : Value
+End testing for 3.12
+val it = () : unit
+val MeaningBooleanExpr = fn : BooleanExpression -> ProgState -> Value
+Begin testing for 3.13
+val it = () : unit
+val state_3_13 = fn : Variable -> Value
+Expect true
+val it = () : unit
+val it = BV true : Value
+Expect false
+val it = () : unit
+val it = BV false : Value
+Expect false
+val it = () : unit
+val it = BV false : Value
+Expect false
+val it = () : unit
+val it = BV false : Value
+End testing for 3.13
+val it = () : unit
+val MeaningExpression = fn : Expression -> ProgState -> Value
+val MeaningInstruction = fn : Instruction -> ProgState -> ProgState
+Begin 3.15 testing
+val it = () : unit
+val state_3_15 = fn : Variable -> Value
+val add_one_to_v1 =
+  Instruction_2 ("n",Expression_1 (IntegerExpression_3 (#,#,#))) : Instruction
+val times_0_to_v1 =
+  Instruction_2 ("n",Expression_1 (IntegerExpression_3 (#,#,#))) : Instruction
+val state_3_15 = fn : ProgState
+Expect 0
+val it = () : unit
+val it = IV 0 : Value
+val state_3_15 = fn : ProgState
+Expect 1
+val it = () : unit
+val it = IV 1 : Value
+val it = fn : ProgState
+Expect 1
+val it = () : unit
+val it = IV 1 : Value
+val state_3_15 = fn : ProgState
+Expect 2
+val it = () : unit
+val it = IV 2 : Value
+val state_3_15 = fn : ProgState
+Expect 0
+val it = () : unit
+val it = IV 0 : Value
+val state_3_15 = fn : ProgState
+Expect 10
+val it = () : unit
+val it = IV 10 : Value
+exception ProgramError
+val MeaningProgram = fn : Program -> ProgState
+Begin 3.17 testing
+val it = () : unit
+val myFinalMemory = fn : ProgState
+val it = IV 0 : Value
+val it = IV 1 : Value
+val it = IV 31 : Value
+val it = IV 0 : Value
+val it = IV 16 : Value
+val it = BV true : Value
+End 3.17 testing
+val it = () : unit
+val inst2 = Instruction_2 ("n",Expression_1 (IntegerExpression_1 12))
+  : Instruction
+val insts1 =
+  Instruction_3
+    [Instruction_2 ("sum",Expression_1 #),Instruction_2 ("n",Expression_1 #)]
+  : Instruction
+val ourProgram =
+  ([("n",IntegerType),("reverse",IntegerType),("sum",IntegerType),
+    ("flag",IntegerType),("j",IntegerType),("tprime",BooleanType)],
+   Instruction_3
+     [Instruction_3 [#,#],Instruction_5 (#,#),Instruction_3 [#,#],
+      Instruction_3 [#,#],Instruction_4 (#,#,#)])
+  : (string * Type) list * Instruction
+val myFinalMemory = fn : ProgState
+val it = IV 0 : Value
+val it = IV 1 : Value
+val it = IV 21 : Value
+val it = IV 1 : Value
+val it = IV 11 : Value
+val it = BV false : Value
+End 3.17 testing
+val it = () : unit
+- 

@@ -150,7 +150,11 @@ val ifBlock2 = Instruction_4(ifCond2, thenStatement2, elseStatement2);
 (* Repeat Innards *)
 
 (* If Condition *)
-val ifArith1 = IntegerExpression_3(IntegerExpression_3(IntegerExpression_2(v3), Minus, IntegerExpression_2(v5)), Times, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_2(v5)));
+val ifArith1 = 
+	IntegerExpression_3(IntegerExpression_2(v3), Minus,
+		IntegerExpression_3(IntegerExpression_2(v5), Times,
+			IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_2(v5))));
+
 val ifCond1 = BooleanExpression_3(ifArith1, Eq, IntegerExpression_1(0));
 
 (* If Innards *)
@@ -167,7 +171,7 @@ val repeatInst1 = Instruction_2(v5, Expression_1(repeatArith1));
 val repeatBody = Instruction_3([ifBlock1, repeatInst1]); 
 
 (* Repeat Cond *)
-val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Ge, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_1(2)));
+val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Le, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_1(2)));
 
 (* Repeat Block *)
 val repeatBlock1 = Instruction_3([repeatBody, Instruction_5(repeatCond, repeatBody)]);
