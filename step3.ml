@@ -48,32 +48,34 @@ type Program = (DeclarationList * Instruction);
 (* Sample Program
 PROGRAM twisted_prime
 {
-n Integer;
-reverse Integer;
-sum Integer;
-flag Integer;
-j Integer;
-tprime Boolean;
-sum = 0;
-n = 13;
-WHILE (n Ne 0)
-{
-reverse = (n Minus 10 Times (n Div 10));
-sum = sum Times 10 Plus reverse;
-n = n Div 10;
-}
-flag = 0;
-j = 2;
-REPEAT
-IF ((sum Minus j Times (sum Div j)) Eq 0)
-{
-flag = 1;
-break;
-}
-j = j Plus 1;
-UNTIL (j Le (sum Div 2))
-IF (flag Eq 0) THEN ans=True;
-ELSE ans=False;
+    n Integer;
+    reverse Integer;
+    sum Integer;
+    flag Integer;
+    j Integer;
+    tprime Boolean;
+
+    sum = 0;
+    n = 13;
+    WHILE (n Ne 0)
+    {
+        reverse = (n Minus 10 Times (n Div 10));
+        sum = sum Times 10 Plus reverse;
+        n = n Div 10;
+    }
+    flag = 0;
+    j = 2;
+    REPEAT
+        IF ((sum Minus j Times (sum Div j)) Eq 0)
+        {
+            flag = 1;
+            break;
+        }
+        j = j Plus 1;
+    UNTIL (j Le (sum Div 2))
+
+    IF (flag Eq 0) THEN ans=True;
+    ELSE ans=False;
 }
 *)
 
@@ -553,6 +555,8 @@ print("Begin testing for 3.11\n");
 val boolExp1 = MeaningBoolExp(BV(true), And, BV(false));
 val boolExp2 = MeaningBoolExp(BV(false), Or, BV(true));
 print("End testing for 3.11\n");
+
+
 (* 3.12 *)
 (* MeaningIntExp: IntExp->ProgState->Value  *)
 fun MeaningIntExp(IntegerExpression_1(i))(State:ProgState)= IV(i) |
@@ -593,11 +597,9 @@ print("End testing for 3.13\n");
 (* MeaningExpression: Expression->ProgState->Value 
    Bridge function 
 *)
-
-
 val rec MeaningExpression = 
-                fn(Expression_2(e)) => MeaningBooleanExpr(e) |   (* ERROR *)
-			      (Expression_1(e)) => MeaningIntExp(e);   (* ERROR *)
+                fn(Expression_2(e)) => MeaningBooleanExpr(e) |
+			      (Expression_1(e)) => MeaningIntExp(e);
 
 
 
@@ -686,4 +688,47 @@ print("Expect 10\n"); state_3_15(v1);
 
 
 (* 3.16 *)
-(* exception ProgramError; *)
+exception ProgramError;
+
+
+(* 3.17 *)
+fun MeaningProgram(_, instr:Instruction) = 
+    MeaningInstruction(instr)(InitialProgState);
+
+
+(* 3.17 testing *)
+print("Begin 3.17 testing\n");
+val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(13)));
+val insts1 = Instruction_3([inst1, inst2]);
+val ourProgram = (
+			declares, 
+			Instruction_3([
+				insts1,
+				whileBlock,
+				insts2,
+				repeatBlock1,
+				ifBlock2
+			])
+		);
+
+
+print("Expect 0\n");
+MeaningProgram(ourProgram)(v4);
+
+
+val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(0)));
+val insts1 = Instruction_3([inst1, inst2]);
+val ourProgram = (
+			declares, 
+			Instruction_3([
+				insts1,
+				whileBlock,
+				insts2,
+				repeatBlock1,
+				ifBlock2
+			])
+		);
+
+print("Expecting 1\n");
+MeaningProgram(ourProgram)(v4);
+print("End 3.17 testing\n");
