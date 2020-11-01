@@ -106,10 +106,10 @@ val insts1 = Instruction_3([inst1, inst2]);
 val whileCond = BooleanExpression_3(IntegerExpression_2(v1), Ne, IntegerExpression_1(0));
 
 (* While innards *)
-val whileArith1 = IntegerExpression_3(
-        IntegerExpression_3(IntegerExpression_2(v1), Minus, IntegerExpression_1(10)),
-        Times,
-        IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpression_1(10))); 
+val whileArith1 =
+IntegerExpression_3(IntegerExpression_2(v1), Minus, 
+	IntegerExpression_3(IntegerExpression_1(10), Times,
+		IntegerExpression_3(IntegerExpression_2(v1), Div, IntegerExpression_1(10))));
 
 val whileInst1 = Instruction_2(v2, Expression_1(whileArith1)); 
 
@@ -167,7 +167,7 @@ val repeatInst1 = Instruction_2(v5, Expression_1(repeatArith1));
 val repeatBody = Instruction_3([ifBlock1, repeatInst1]); 
 
 (* Repeat Cond *)
-val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Le, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_1(2)));
+val repeatCond = BooleanExpression_3(IntegerExpression_2(v5), Ge, IntegerExpression_3(IntegerExpression_2(v3), Div, IntegerExpression_1(2)));
 
 (* Repeat Block *)
 val repeatBlock1 = Instruction_3([repeatBody, Instruction_5(repeatCond, repeatBody)]);
@@ -289,12 +289,12 @@ val rec VIntExp =
 (*Testing 2.8 *)
 print("\nTesting Step 2.8\n");
 
-VIntExp(IntegerExpression_1(0));				(* good test IntegerExpression_1 *)
-VIntExp(IntegerExpression_2(v1)); 				(* good test IntegerExpression_2 *)
-VIntExp(whileArith2);						(* good test IntegerExpression_3 *)
+VIntExp(IntegerExpression_1(0))(testVariables);			(* good test IntegerExpression_1 *)
+VIntExp(IntegerExpression_2(v1))(testVariables);		(* good test IntegerExpression_2 *)
+VIntExp(whileArith2)(testVariables);				(* good test IntegerExpression_3 *)
 
-VIntExp(IntegerExpression_2(v6));				(* bad test IntegerExpression_2 *)
-VIntExp(IntegerExpression_3(IntegerExpression_1(0), Plus , IntegerExpression_2(v6)));	(* bad test IntegerExpression_3 *)
+VIntExp(IntegerExpression_2(v6))(testVariables);		(* bad test IntegerExpression_2 *)
+VIntExp(IntegerExpression_3(IntegerExpression_1(0), Plus , IntegerExpression_2(v6)))(testVariables);	(* bad test IntegerExpression_3 *)
 
 
 (* step 2.9
@@ -312,13 +312,13 @@ val rec VBoolExp =
 (*Testing 2.9*)
 print("\nTesting Step 2.9\n");
 
-VBoolExp(BooleanExpression_1(true));				(* good test BooleanExpression_1 *)
-VBoolExp(BooleanExpression_2(v6));				(* good test BooleanExpression_2 *)
-VBoolExp(ifCond2);						(* good test BooleanExpression_3 *)
-VBoolExp(BooleanExpression_4(whileCond, And, ifCond2));		(* good test BooleanExpression_4 *)
+VBoolExp(BooleanExpression_1(true))(testVariables);		(* good test BooleanExpression_1 *)
+VBoolExp(BooleanExpression_2(v6))(testVariables);		(* good test BooleanExpression_2 *)
+VBoolExp(ifCond2)(testVariables);				(* good test BooleanExpression_3 *)
+VBoolExp(BooleanExpression_4(whileCond, And, ifCond2))(testVariables);		(* good test BooleanExpression_4 *)
 
-VBoolExp(BooleanExpression_2(v1));				(* bad test IntegerExpression_2 *)
-VBoolExp(BooleanExpression_3(IntegerExpression_1(1), Ge, IntegerExpression_2(v1))); (*bad test BooleanExpression_3*)
+VBoolExp(BooleanExpression_2(v1))(testVariables);		(* bad test IntegerExpression_2 *)
+VBoolExp(BooleanExpression_3(IntegerExpression_1(1), Ge, IntegerExpression_2(v1)))(testVariables); (*bad test BooleanExpression_3*)
 
 
 
@@ -692,43 +692,49 @@ exception ProgramError;
 
 
 (* 3.17 *)
-fun MeaningProgram(_, instr:Instruction) = 
-    MeaningInstruction(instr)(InitialProgState);
+(* fun MeaningProgram(_, instr:Instruction) =  *)
+(*    MeaningInstruction(instr)(InitialProgState); *)
+
+fun MeaningProgram((decList, body): Program) =
+	if VProgram(decList, body) then MeaningInstruction(body)(InitialProgState)
+	else raise ProgramError;
 
 
 (* 3.17 testing *)
 print("Begin 3.17 testing\n");
-val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(13)));
-val insts1 = Instruction_3([inst1, inst2]);
-val ourProgram = (
-			declares, 
-			Instruction_3([
-				insts1,
-				whileBlock,
-				insts2,
-				repeatBlock1,
-				ifBlock2
-			])
-		);
 
-
-print("Expect 0\n");
-MeaningProgram(ourProgram)(v4);
-
-
-val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(0)));
-val insts1 = Instruction_3([inst1, inst2]);
-val ourProgram = (
-			declares, 
-			Instruction_3([
-				insts1,
-				whileBlock,
-				insts2,
-				repeatBlock1,
-				ifBlock2
-			])
-		);
-
-print("Expecting 1\n");
-MeaningProgram(ourProgram)(v4);
+val myFinalMemory = MeaningProgram(ourProgram);
+myFinalMemory(v1);
+myFinalMemory(v2);
+myFinalMemory(v3);
+myFinalMemory(v4);
+myFinalMemory(v5);
+myFinalMemory(v6);
 print("End 3.17 testing\n");
+
+
+
+val inst2 = Instruction_2(v1, Expression_1(IntegerExpression_1(12)));		(* testing with n = 12, not a twisted prime number *)
+val insts1 = Instruction_3([inst1, inst2]);
+val ourProgram = (
+                  	declares,
+                        Instruction_3([
+                                insts1,
+                                whileBlock,
+                                insts2,
+                                repeatBlock1,
+                                ifBlock2
+                        ])
+                );
+
+
+val myFinalMemory = MeaningProgram(ourProgram);
+myFinalMemory(v1);
+myFinalMemory(v2);
+myFinalMemory(v3);
+myFinalMemory(v4);
+myFinalMemory(v5);
+myFinalMemory(v6);
+print("End 3.17 testing\n");
+
+
