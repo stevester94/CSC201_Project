@@ -268,15 +268,14 @@ val testlist  = [
 ValidDecList testlist;
 
 (* Updated 11/01/2020 per input from Prof. Zang 1 Bad case - Redundant*)
-val badtestlist  = [
-    (v1, IntegerType),
-    (v1, IntegerType),
-    (v2, IntegerType),
-    (v3, IntegerType),
-    (v4, IntegerType),
-    (v5, IntegerType),
-    (v6, BooleanType)
-    ];
+val badtestlist = [
+       (v1, IntegerType),
+       (v4, IntegerType),
+       (v2, IntegerType),
+       (v3, IntegerType),
+       (v1, IntegerType),
+       (v5, IntegerType),
+       (v6, BooleanType) ];
 
 ValidDecList badtestlist;
 
